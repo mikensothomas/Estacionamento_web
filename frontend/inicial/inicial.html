@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel inicial | Estacionamento</title>
+  <link rel="stylesheet" href="/assets/inicial/inicial.css">
+  <script src="/assets/inicial/inicial.js" defer></script>
+</head>
+<body data-private="true">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/pagina/inicial"><span class="brand-mark">E</span><span>Estacionamento</span></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="/pagina/inicial">Início</a>
+        <a href="/pagina/clientes">Clientes</a>
+        <a href="/pagina/veiculos">Veículos</a>
+        <a href="/pagina/usuarios">Usuários</a>
+        <a href="/pagina/vagas">Vagas</a>
+        <a href="/pagina/precos">Preços</a>
+      </nav>
+      <button class="button button-outline" id="logoutButton" type="button" hidden>Sair</button>
+    </header>
+    <main class="main-content">
+      <section class="page-heading">
+        <div><p class="eyebrow">GESTÃO DO ESTACIONAMENTO</p><h1>Painel inicial</h1><p class="subtitle">Resumo do estacionamento</p></div>
+      </section>
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+
+      <section class="stats-grid"><article class="stat-card"><span>Clientes</span><strong id="totalClientes">—</strong></article><article class="stat-card"><span>Veículos</span><strong id="totalVeiculos">—</strong></article><article class="stat-card"><span>Vagas disponíveis</span><strong id="totalVagas">—</strong></article><article class="stat-card"><span>Vagas ocupadas</span><strong id="totalOcupadas">—</strong></article></section><section class="panel"><h2>Acesso rápido</h2><p>Escolha uma seção no menu para cadastrar, consultar, editar ou excluir registros.</p><div class="quick-links"><a href="/pagina/clientes">Gerenciar clientes →</a><a href="/pagina/veiculos">Gerenciar veículos →</a><a href="/pagina/vagas">Gerenciar vagas →</a></div></section>
+
+    </main>
+    <footer class="footer">Sistema de Estacionamento · FastAPI + SQLModel + MySQL</footer>
+  </div>
+</body>
+</html>

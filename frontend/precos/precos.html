@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Preços | Estacionamento</title>
+  <link rel="stylesheet" href="/assets/precos/precos.css">
+  <script src="/assets/precos/precos.js" defer></script>
+</head>
+<body data-private="true">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/pagina/inicial"><span class="brand-mark">E</span><span>Estacionamento</span></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="/pagina/inicial">Início</a>
+        <a href="/pagina/clientes">Clientes</a>
+        <a href="/pagina/veiculos">Veículos</a>
+        <a href="/pagina/usuarios">Usuários</a>
+        <a href="/pagina/vagas">Vagas</a>
+        <a href="/pagina/precos">Preços</a>
+      </nav>
+      <button class="button button-outline" id="logoutButton" type="button" hidden>Sair</button>
+    </header>
+    <main class="main-content">
+      <section class="page-heading">
+        <div><p class="eyebrow">GESTÃO DO ESTACIONAMENTO</p><h1>Preços</h1><p class="subtitle">Configure os valores por hora e mensal</p></div>
+      </section>
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+
+
+      <section class="panel"><div class="panel-heading"><div><h2 id="formTitle">Novo registro</h2><p>Preencha os campos abaixo.</p></div></div><form id="recordForm" class="record-form"></form><div class="form-actions"><button class="button button-primary" id="saveButton" type="submit" form="recordForm">Salvar registro</button><button class="button button-outline" id="cancelEdit" type="button" hidden>Cancelar edição</button></div></section><section class="panel table-panel"><div class="panel-heading"><div><h2>Registros cadastrados</h2><p id="recordCount">Carregando...</p></div><button class="button button-outline" id="refreshButton" type="button">Atualizar</button></div><div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div></section>
+    </main>
+    <footer class="footer">Sistema de Estacionamento · FastAPI + SQLModel + MySQL</footer>
+  </div>
+</body>
+</html>
