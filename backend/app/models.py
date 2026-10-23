@@ -5,6 +5,7 @@ from typing import Optional
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr, field_validator
 import re
+from sqlalchemy import Column, Enum as SAEnum
 
 
 class TipoCliente(str, Enum):
@@ -89,9 +90,29 @@ class ClienteBase(SQLModel):
         return digits
 
 
+# class Cliente(ClienteBase, table=True):
+#     __tablename__ = "clientes"
+#     id_cliente: Optional[int] = Field(default=None, primary_key=True)
+
+
 class Cliente(ClienteBase, table=True):
     __tablename__ = "clientes"
+
+    tipo_cliente: TipoCliente = Field(
+        default=TipoCliente.horista,
+        sa_column=Column(
+            SAEnum(
+                TipoCliente,
+                values_callable=lambda enum_cls: [
+                    item.value for item in enum_cls
+                ],
+            ),
+            nullable=False,
+        ),
+    )
+
     id_cliente: Optional[int] = Field(default=None, primary_key=True)
+
 
 
 class ClienteCriar(ClienteBase):
@@ -172,8 +193,27 @@ class VagaBase(SQLModel):
     disponibilidade: DisponibilidadeVaga = DisponibilidadeVaga.disponivel
 
 
+# class Vaga(VagaBase, table=True):
+#     __tablename__ = "vaga"
+#     id_vaga: Optional[int] = Field(default=None, primary_key=True)
+
+
 class Vaga(VagaBase, table=True):
     __tablename__ = "vaga"
+
+    disponibilidade: DisponibilidadeVaga = Field(
+        default=DisponibilidadeVaga.disponivel,
+        sa_column=Column(
+            SAEnum(
+                DisponibilidadeVaga,
+                values_callable=lambda enum_cls: [
+                    item.value for item in enum_cls
+                ],
+            ),
+            nullable=False,
+        ),
+    )
+
     id_vaga: Optional[int] = Field(default=None, primary_key=True)
 
 
