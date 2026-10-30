@@ -90,11 +90,6 @@ class ClienteBase(SQLModel):
         return digits
 
 
-# class Cliente(ClienteBase, table=True):
-#     __tablename__ = "clientes"
-#     id_cliente: Optional[int] = Field(default=None, primary_key=True)
-
-
 class Cliente(ClienteBase, table=True):
     __tablename__ = "clientes"
 
@@ -191,11 +186,6 @@ class VeiculoPublico(VeiculoBase):
 class VagaBase(SQLModel):
     numero_vaga: int = Field(gt=0, unique=True, index=True)
     disponibilidade: DisponibilidadeVaga = DisponibilidadeVaga.disponivel
-
-
-# class Vaga(VagaBase, table=True):
-#     __tablename__ = "vaga"
-#     id_vaga: Optional[int] = Field(default=None, primary_key=True)
 
 
 class Vaga(VagaBase, table=True):

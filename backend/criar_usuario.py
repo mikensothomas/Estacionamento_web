@@ -1,35 +1,41 @@
-from getpass import getpass
+import re
 from sqlmodel import Session, select
 from app.database import engine, criar_tabelas
 from app.models import Usuario
 from app.security import hash_senha
-import re
+from decouple import config
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
 def main():
     criar_tabelas()
-    nome = input("Nome completo: ").strip()
-    cpf = re.sub(r"\D", "", input("CPF (somente números): ").strip())
-    email = input("E-mail: ").strip().lower()
-    senha = getpass("Senha (mínimo 8 caracteres): ")
-    confirmar = getpass("Confirme a senha: ")
+
+    nome = config("ADMIN_NOME", default="").strip()
+    cpf_raw = config("ADMIN_CPF", default="")
+    email = config("ADMIN_EMAIL", default="").strip().lower()
+    senha = config("ADMIN_SENHA", default="")
+
+    cpf = re.sub(r"\D", "", cpf_raw)
 
     if len(nome) < 2:
-        raise SystemExit("Nome inválido.")
+        raise SystemExit("Erro: Nome inválido no arquivo .env")
     if len(cpf) != 11:
-        raise SystemExit("CPF deve conter 11 números.")
+        raise SystemExit("Erro: CPF deve conter 11 números no arquivo .env")
     if "@" not in email:
-        raise SystemExit("E-mail inválido.")
+        raise SystemExit("Erro: E-mail inválido no arquivo .env")
     if len(senha) < 8:
-        raise SystemExit("A senha precisa ter pelo menos 8 caracteres.")
-    if senha != confirmar:
-        raise SystemExit("As senhas não coincidem.")
+        raise SystemExit("Erro: A senha precisa ter pelo menos 8 caracteres no arquivo .env")
 
     with Session(engine) as session:
         existente = session.exec(
             select(Usuario).where((Usuario.email == email) | (Usuario.cpf == cpf))
         ).first()
+        
         if existente:
-            raise SystemExit("Já existe usuário com esse e-mail ou CPF.")
+            print("Aviso: O usuário com este e-mail ou CPF já está cadastrado no banco.")
+            return
+
         usuario = Usuario(
             nome_completo=nome,
             cpf=cpf,
@@ -38,7 +44,6 @@ def main():
         )
         session.add(usuario)
         session.commit()
-    print("Usuário criado com sucesso. Acesse a tela de login.")
-
+        
 if __name__ == "__main__":
     main()

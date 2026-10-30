@@ -1,10 +1,15 @@
 from pathlib import Path
+import os
+import re
 from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi import HTTPException
-from sqlalchemy.exc import OperationalError
-from .database import criar_tabelas
+from sqlmodel import Session, select
+
+from .database import criar_tabelas, engine
+from .models import Usuario
+from .security import hash_senha
 from .routers import auth, clientes, veiculos, usuarios, vagas, precos
 
 app = FastAPI(
@@ -18,10 +23,36 @@ FRONTEND_DIR = BASE_DIR / "frontend"
 
 app.mount("/assets", StaticFiles(directory=FRONTEND_DIR), name="assets")
 
+def criar_usuario_inicial():
+    """Verifica se o usuário administrador existe no banco; se não, cria usando o .env."""
+    nome = os.getenv("ADMIN_NOME").strip()
+    cpf_raw = os.getenv("ADMIN_CPF")
+    email = os.getenv("ADMIN_EMAIL").strip().lower()
+    senha = os.getenv("ADMIN_SENHA")
+
+    cpf = re.sub(r"\D", "", cpf_raw)
+
+    with Session(engine) as session:
+        existente = session.exec(
+            select(Usuario).where((Usuario.email == email) | (Usuario.cpf == cpf))
+        ).first()
+
+        if existente:
+            return
+
+        usuario = Usuario(
+            nome_completo=nome,
+            cpf=cpf,
+            email=email,
+            senha_hash=hash_senha(senha),
+        )
+        session.add(usuario)
+        session.commit()
+
 @app.on_event("startup")
 def startup():
-    # Cria tabelas ausentes; não altera tabelas existentes.
     criar_tabelas()
+    criar_usuario_inicial()
 
 @app.get("/", include_in_schema=False)
 def pagina_login():
