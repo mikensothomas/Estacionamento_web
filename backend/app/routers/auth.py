@@ -27,5 +27,4 @@ def meu_usuario(usuario: UsuarioAtual):
 
 @router.post("/logout")
 def logout(usuario: UsuarioAtual):
-    # JWT é stateless: o cliente descarta o token. O token também expira em 60 min.
     return {"mensagem": "Logout solicitado. Remova o token armazenado no navegador."}

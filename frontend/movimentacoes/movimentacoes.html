@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Movimentações | Estacionamento</title>
+  <link rel="stylesheet" href="/assets/movimentacoes/movimentacoes.css">
+  <script src="/assets/movimentacoes/movimentacoes.js" defer></script>
+</head>
+<body data-private="true">
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="/pagina/inicial"><span class="brand-mark">E</span><span>Estacionamento</span></a>
+      <nav class="nav-links" id="navLinks">
+        <a href="/pagina/inicial">Início</a>
+        <a href="/pagina/clientes">Clientes</a>
+        <a href="/pagina/veiculos">Veículos</a>
+        <a href="/pagina/usuarios">Usuários</a>
+        <a href="/pagina/vagas">Vagas</a>
+        <a href="/pagina/precos">Preços</a>
+        <a href="/pagina/movimentacoes" class="active">Movimentações</a>
+      </nav>
+      <button class="button button-outline" id="logoutButton" type="button" hidden>Sair</button>
+    </header>
+
+    <main class="main-content">
+      <section class="page-heading">
+        <div><p class="eyebrow">OPERAÇÃO DO ESTACIONAMENTO</p><h1>Movimentações</h1><p class="subtitle">Registre entradas, acompanhe veículos presentes e finalize saídas.</p></div>
+        <button class="button button-outline" id="refreshButton" type="button">Atualizar dados</button>
+      </section>
+      <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+
+      <section class="stats-grid">
+        <article class="stat-card"><span>Veículos no estacionamento</span><strong id="totalAbertas">—</strong></article>
+        <article class="stat-card"><span>Vagas disponíveis</span><strong id="totalDisponiveis">—</strong></article>
+        <article class="stat-card"><span>Vagas ocupadas</span><strong id="totalOcupadas">—</strong></article>
+        <article class="stat-card"><span>Saídas hoje</span><strong id="totalSaidas">—</strong></article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading"><div><h2>Registrar entrada</h2><p>Selecione um veículo cadastrado e uma vaga disponível.</p></div></div>
+        <form id="entryForm" class="record-form">
+          <div class="field"><label for="id_veiculo">Veículo</label><select id="id_veiculo" required><option value="">Carregando veículos...</option></select></div>
+          <div class="field"><label for="id_vaga">Vaga disponível</label><select id="id_vaga" required><option value="">Carregando vagas...</option></select></div>
+          <div class="form-actions"><button class="button button-primary" id="entryButton" type="submit">Registrar entrada</button></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading"><div><h2>Veículos no estacionamento</h2><p id="openCount">Carregando movimentações...</p></div><span class="live-indicator">● Monitoramento ativo</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Placa</th><th>Veículo</th><th>Cliente</th><th>Vaga</th><th>Entrada</th><th>Permanência</th><th>Ação</th></tr></thead><tbody id="openBody"><tr><td colspan="7" class="empty-state">Carregando...</td></tr></tbody></table></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading"><div><h2>Histórico de saídas</h2><p id="historyCount">Movimentações finalizadas</p></div><button class="button button-outline" id="historyButton" type="button">Atualizar histórico</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Placa</th><th>Vaga</th><th>Entrada</th><th>Saída</th><th>Valor</th><th>Status</th></tr></thead><tbody id="historyBody"><tr><td colspan="6" class="empty-state">Carregando...</td></tr></tbody></table></div>
+      </section>
+    </main>
+    <footer class="footer">Sistema de Estacionamento · FastAPI + SQLModel + MySQL</footer>
+  </div>
+</body>
+</html>

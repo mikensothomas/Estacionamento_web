@@ -10,7 +10,15 @@ from sqlmodel import Session, select
 from .database import criar_tabelas, engine
 from .models import Usuario
 from .security import hash_senha
-from .routers import auth, clientes, veiculos, usuarios, vagas, precos
+from .routers import (
+    auth, 
+    clientes, 
+    veiculos, 
+    usuarios, 
+    vagas, 
+    precos,
+    movimentacoes
+)
 
 app = FastAPI(
     title="Sistema de Estacionamento",
@@ -60,10 +68,26 @@ def pagina_login():
 
 @app.get("/pagina/{nome}", include_in_schema=False)
 def pagina_frontend(nome: str):
-    permitidas = {"inicial", "clientes", "veiculos", "usuarios", "vagas", "precos"}
+    permitidas = {"inicial", "clientes", "veiculos", "usuarios", "vagas", "precos", "movimentacoes"}
     if nome not in permitidas:
         raise HTTPException(404, "Página não encontrada.")
     return FileResponse(FRONTEND_DIR / nome / f"{nome}.html")
+
+# @app.get("/pagina/{nome}", include_in_schema=False)
+# def pagina_frontend(nome: str):
+#     permitidas = {
+#         "inicial", "clientes", "veiculos",
+#         "usuarios", "vagas", "precos", "movimentacoes"
+#     }
+
+#     print("Página solicitada:", nome)
+#     print("Caminho:", FRONTEND_DIR / nome / f"{nome}.html")
+#     print("Arquivo existe:", (FRONTEND_DIR / nome / f"{nome}.html").exists())
+
+#     if nome not in permitidas:
+#         raise HTTPException(404, "Página não encontrada.")
+
+#     return FileResponse(FRONTEND_DIR / nome / f"{nome}.html")
 
 @app.get("/api/health", tags=["Sistema"])
 def health():
@@ -75,3 +99,4 @@ app.include_router(veiculos.router)
 app.include_router(usuarios.router)
 app.include_router(vagas.router)
 app.include_router(precos.router)
+app.include_router(movimentacoes.router)

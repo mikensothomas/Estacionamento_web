@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
 from typing import Optional
@@ -5,7 +6,6 @@ from sqlmodel import SQLModel, Field
 from pydantic import EmailStr, field_validator
 import re
 from sqlalchemy import Column, Enum as SAEnum
-
 
 class TipoCliente(str, Enum):
     mensalista = "Mensalista"
@@ -240,3 +240,68 @@ class PrecoAtualizar(SQLModel):
 
 class PrecoPublico(PrecoBase):
     id_preco: int
+
+
+class StatusMovimentacao(str, Enum):
+    em_andamento = "Em andamento"
+    finalizada = "Finalizada"
+
+
+class MovimentacaoBase(SQLModel):
+    id_veiculo: int
+    id_vaga: int
+
+
+class Movimentacao(MovimentacaoBase, table=True):
+    __tablename__ = "movimentacoes"
+
+    id_movimentacao: Optional[int] = Field(
+        default=None,
+        primary_key=True,
+    )
+
+    data_hora_entrada: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+
+    data_hora_saida: Optional[datetime] = Field(
+        default=None,
+        nullable=True,
+    )
+
+    valor_total: Optional[Decimal] = Field(
+        default=None,
+        max_digits=10,
+        decimal_places=2,
+        nullable=True,
+    )
+
+    status: StatusMovimentacao = Field(
+        default=StatusMovimentacao.em_andamento,
+        sa_column=Column(
+            SAEnum(
+                StatusMovimentacao,
+                values_callable=lambda enum_cls: [
+                    item.value for item in enum_cls
+                ],
+            ),
+            nullable=False,
+            default=StatusMovimentacao.em_andamento,
+        ),
+    )
+
+
+class MovimentacaoEntrada(SQLModel):
+    id_veiculo: int = Field(gt=0)
+    id_vaga: int = Field(gt=0)
+
+
+class MovimentacaoPublica(SQLModel):
+    id_movimentacao: int
+    id_veiculo: int
+    id_vaga: int
+    data_hora_entrada: datetime
+    data_hora_saida: Optional[datetime] = None
+    valor_total: Optional[Decimal] = None
+    status: StatusMovimentacao
