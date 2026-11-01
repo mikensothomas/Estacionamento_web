@@ -1,5 +1,6 @@
 const API = "/api/precos/";
 const form = document.getElementById("recordForm");
+const botaoSalvar = document.getElementById("saveButton");
 const feedback = document.getElementById("feedback");
 const tbody = document.getElementById("tableBody");
 const thead = document.getElementById("tableHead");
@@ -9,6 +10,8 @@ let editandoId = null;
 const campos = ["valor_hora", "valor_mensal"];
 const colunas = [["id_preco", "ID"], ["valor_hora", "Valor/hora"], ["valor_mensal", "Valor mensal"]];
 const opcoes = {};
+
+botaoSalvar.disabled = true;
 
 if (!token) window.location.replace("/");
 const logout = document.getElementById("logoutButton");
@@ -74,7 +77,34 @@ function desenharFormulario() {
     wrap.append(label,input); form.appendChild(wrap);
   }
   if (campos.includes("id_cliente")) carregarOpcoesClientes();
+
+  controlarCampos();
+
 }
+
+function controlarCampos() {
+  let anterioresPreenchidos = true;
+
+  for (const campo of campos) {
+    const input = document.getElementById(campo);
+
+    if (!input) continue;
+
+    input.disabled = editandoId === null && !anterioresPreenchidos;
+
+    anterioresPreenchidos =
+      anterioresPreenchidos && input.value.trim() !== "";
+  }
+
+  botaoSalvar.disabled = !campos.every(campo => {
+    const input = document.getElementById(campo);
+    return input && input.value.trim() !== "";
+  });
+}
+
+form.addEventListener("input", controlarCampos);
+form.addEventListener("change", controlarCampos);
+
 async function carregarOpcoesClientes() {
   const select=document.getElementById("id_cliente"); if (!select) return;
   try {
@@ -121,15 +151,21 @@ function prepararEdicao(item) {
     if (campo === "senha") { input.value=""; input.required=false; input.placeholder="Deixe em branco para manter a senha atual"; continue; }
     input.value=item[campo] ?? "";
   }
+  controlarCampos();
+
   window.scrollTo({top:0,behavior:"smooth"});
 }
+
 function resetarFormulario() {
   editandoId=null; form.reset();
   document.getElementById("formTitle").textContent="Novo registro";
   document.getElementById("saveButton").textContent="Salvar registro";
   document.getElementById("cancelEdit").hidden=true;
   const senhaInput=document.getElementById("senha"); if (senhaInput) {senhaInput.required=true;senhaInput.placeholder="Mínimo 8 caracteres";}
+
+  controlarCampos();
 }
+
 form.addEventListener("submit", async event => {
   event.preventDefault();
   const dados={};

@@ -1,5 +1,6 @@
 const API = "/api/vagas/";
 const form = document.getElementById("recordForm");
+const botaoSalvar = document.getElementById("saveButton");
 const feedback = document.getElementById("feedback");
 const tbody = document.getElementById("tableBody");
 const thead = document.getElementById("tableHead");
@@ -9,6 +10,8 @@ let editandoId = null;
 const campos = ["numero_vaga", "disponibilidade"];
 const colunas = [["id_vaga", "ID"], ["numero_vaga", "Número"], ["disponibilidade", "Disponibilidade"]];
 const opcoes = {"disponibilidade": [["Disponível", "Disponível"], ["Ocupada", "Ocupada"]]};
+
+botaoSalvar.disabled = true;
 
 if (!token) window.location.replace("/");
 const logout = document.getElementById("logoutButton");
@@ -55,7 +58,6 @@ function desenharFormulario() {
       input=document.createElement("select");
       input.innerHTML='<option value="">Selecione...</option>';
       if (nome === "id_cliente") {
-        // opções serão preenchidas pela lista de clientes
       } else {
         for (const [valor,texto] of (opcoes[nome]||[])) {
           const opt=document.createElement("option"); opt.value=valor; opt.textContent=texto; input.appendChild(opt);
@@ -73,8 +75,35 @@ function desenharFormulario() {
     input.id=nome; input.name=nome; input.required=true;
     wrap.append(label,input); form.appendChild(wrap);
   }
+
   if (campos.includes("id_cliente")) carregarOpcoesClientes();
+
+  controlarCampos();
 }
+
+function controlarCampos() {
+  let anterioresPreenchidos = true;
+
+  for (const campo of campos) {
+    const input = document.getElementById(campo);
+
+    if (!input) continue;
+
+    input.disabled = editandoId === null && !anterioresPreenchidos;
+
+    anterioresPreenchidos =
+      anterioresPreenchidos && input.value.trim() !== "";
+  }
+
+  botaoSalvar.disabled = !campos.every((campo) => {
+    const input = document.getElementById(campo);
+    return input && input.value.trim() !== "";
+  });
+}
+
+form.addEventListener("input", controlarCampos);
+form.addEventListener("change", controlarCampos);
+
 async function carregarOpcoesClientes() {
   const select=document.getElementById("id_cliente"); if (!select) return;
   try {
@@ -122,6 +151,8 @@ function prepararEdicao(item) {
     input.value=item[campo] ?? "";
   }
   window.scrollTo({top:0,behavior:"smooth"});
+
+  controlarCampos();
 }
 function resetarFormulario() {
   editandoId=null; form.reset();
@@ -129,6 +160,9 @@ function resetarFormulario() {
   document.getElementById("saveButton").textContent="Salvar registro";
   document.getElementById("cancelEdit").hidden=true;
   const senhaInput=document.getElementById("senha"); if (senhaInput) {senhaInput.required=true;senhaInput.placeholder="Mínimo 8 caracteres";}
+
+  controlarCampos();
+  
 }
 form.addEventListener("submit", async event => {
   event.preventDefault();

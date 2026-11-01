@@ -1,5 +1,6 @@
 const API = "/api/usuarios/";
 const form = document.getElementById("recordForm");
+const botaoSalvar = document.getElementById("saveButton");
 const feedback = document.getElementById("feedback");
 const tbody = document.getElementById("tableBody");
 const thead = document.getElementById("tableHead");
@@ -14,6 +15,7 @@ const colunas = [
   ["email", "E-mail"],
 ];
 const opcoes = {};
+botaoSalvar.disabled = true;
 
 function mascararCPF(valor) {
   return valor
@@ -138,7 +140,39 @@ function desenharFormulario() {
     form.appendChild(wrap);
   }
   if (campos.includes("id_cliente")) carregarOpcoesClientes();
+  controlarCampos();
 }
+
+function controlarCampos() {
+  let anterioresPreenchidos = true;
+
+  for (const campo of campos) {
+    const input = document.getElementById(campo);
+
+    if (!input) continue;
+
+    input.disabled = editandoId === null && !anterioresPreenchidos;
+
+    anterioresPreenchidos =
+      anterioresPreenchidos && input.value.trim() !== "";
+  }
+
+  botaoSalvar.disabled = !campos.every((campo) => {
+    const input = document.getElementById(campo);
+
+    if (!input) return false;
+
+    if (campo === "senha" && editandoId !== null && !input.required) {
+      return true;
+    }
+
+    return input.value.trim() !== "";
+  });
+}
+
+form.addEventListener("input", controlarCampos);
+form.addEventListener("change", controlarCampos);
+
 async function carregarOpcoesClientes() {
   const select = document.getElementById("id_cliente");
   if (!select) return;
@@ -234,6 +268,7 @@ function prepararEdicao(item) {
       campo === "cpf" ? mascararCPF(item[campo] ?? "") : (item[campo] ?? "");
   }
   window.scrollTo({ top: 0, behavior: "smooth" });
+  controlarCampos();
 }
 function resetarFormulario() {
   editandoId = null;
@@ -246,6 +281,7 @@ function resetarFormulario() {
     senhaInput.required = true;
     senhaInput.placeholder = "Mínimo 8 caracteres";
   }
+  controlarCampos();
 }
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
