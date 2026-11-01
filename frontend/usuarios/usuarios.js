@@ -47,30 +47,49 @@ document.querySelectorAll(".nav-links a").forEach((a) => {
 function avisar(texto, tipo = "success") {
   feedback.textContent = texto;
   feedback.className = `feedback show ${tipo}`;
-  window.scrollTo({ top: 0, behavior: "smooth" });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
+
 async function requisicao(url, options = {}) {
   const headers = {
     Authorization: `Bearer ${token}`,
     ...(options.headers || {}),
   };
+
   if (options.body) headers["Content-Type"] = "application/json";
+
   const response = await fetch(url, { ...options, headers });
+
   if (response.status === 401) {
     localStorage.removeItem("token");
     localStorage.removeItem("token_expira_em");
     window.location.replace("/");
     throw new Error("Sessão expirada. Entre novamente.");
   }
+
   if (response.status === 204) return null;
+
   const data = await response.json().catch(() => ({}));
+
   if (!response.ok) {
     let detail = data.detail || "Ocorreu um erro.";
-    if (Array.isArray(detail)) detail = detail.map((x) => x.msg).join("; ");
+
+    if (Array.isArray(detail)) {
+      detail = detail
+        .map(item => item.msg)
+        .join("; ");
+    }
+
     throw new Error(detail);
   }
+
   return data;
 }
+
 function labelFor(campo) {
   const labels = {
     nome_completo: "Nome completo",
@@ -78,7 +97,7 @@ function labelFor(campo) {
     email: "E-mail",
     senha: "Senha",
   };
-  return labels[campo] || campo;
+  return labels[campo] || campo;  
 }
 function desenharFormulario() {
   form.innerHTML = "";
@@ -99,7 +118,6 @@ function desenharFormulario() {
       input = document.createElement("select");
       input.innerHTML = '<option value="">Selecione...</option>';
       if (nome === "id_cliente") {
-        // opções serão preenchidas pela lista de clientes
       } else {
         for (const [valor, texto] of opcoes[nome] || []) {
           const opt = document.createElement("option");

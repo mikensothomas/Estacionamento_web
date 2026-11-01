@@ -21,6 +21,19 @@ class DisponibilidadeVaga(str, Enum):
     ocupada = "Ocupada"
 
 
+# class UsuarioBase(SQLModel):
+#     nome_completo: str = Field(min_length=2, max_length=150)
+#     cpf: str = Field(min_length=11, max_length=11, index=True, unique=True)
+#     email: EmailStr = Field(index=True, unique=True, max_length=150)
+
+#     @field_validator("cpf")
+#     @classmethod
+#     def validar_cpf(cls, value: str) -> str:
+#         digits = re.sub(r"\D", "", value)
+#         if len(digits) != 11:
+#             raise ValueError("O CPF deve conter 11 números.")
+#         return digits
+
 class UsuarioBase(SQLModel):
     nome_completo: str = Field(min_length=2, max_length=150)
     cpf: str = Field(min_length=11, max_length=11, index=True, unique=True)
@@ -29,10 +42,7 @@ class UsuarioBase(SQLModel):
     @field_validator("cpf")
     @classmethod
     def validar_cpf(cls, value: str) -> str:
-        digits = re.sub(r"\D", "", value)
-        if len(digits) != 11:
-            raise ValueError("O CPF deve conter 11 números.")
-        return digits
+        return validar_cpf_valido(value)
 
 
 class Usuario(UsuarioBase, table=True):
@@ -51,15 +61,23 @@ class UsuarioAtualizar(SQLModel):
     email: Optional[EmailStr] = None
     senha: Optional[str] = Field(default=None, min_length=8, max_length=128)
 
+    # @field_validator("cpf")
+    # @classmethod
+    # def validar_cpf(cls, value: Optional[str]) -> Optional[str]:
+    #     if value is None:
+    #         return value
+    #     digits = re.sub(r"\D", "", value)
+    #     if len(digits) != 11:
+    #         raise ValueError("O CPF deve conter 11 números.")
+    #     return digits
+
     @field_validator("cpf")
     @classmethod
     def validar_cpf(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
             return value
-        digits = re.sub(r"\D", "", value)
-        if len(digits) != 11:
-            raise ValueError("O CPF deve conter 11 números.")
-        return digits
+
+        return validar_cpf_valido(value)
 
 
 class UsuarioPublico(UsuarioBase):

@@ -29,3 +29,27 @@
     cursor: pointer;
     opacity: 1;
 }
+
+.feedback {
+    display: none;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.feedback.show {
+    display: block;
+}
+
+.feedback.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.feedback.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
