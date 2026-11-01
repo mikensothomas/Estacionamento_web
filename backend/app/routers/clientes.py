@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 
 from ..database import get_session
 from ..dependencies import usuario_atual
+from ..models import validar_documento
 from ..models import (
     Cliente,
     ClienteCriar,
@@ -83,6 +84,18 @@ def atualizar(
             status_code=404,
             detail="Cliente não encontrado.",
         )
+
+    dados_atualizados = dados.model_dump(exclude_unset=True)
+
+    tipo_pessoa = dados_atualizados.get("tipo_pessoa", item.tipo_pessoa)
+    documento = dados_atualizados.get("documento", item.documento)
+
+    try:
+        validar_documento(tipo_pessoa, documento)
+    except ValueError as erro:
+        raise HTTPException(status_code=422, detail=str(erro))
+
+    item.sqlmodel_update(dados_atualizados)
 
     item.sqlmodel_update(
         dados.model_dump(exclude_unset=True)

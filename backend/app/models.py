@@ -3,13 +3,17 @@ from decimal import Decimal
 from enum import Enum
 from typing import Optional
 from sqlmodel import SQLModel, Field
-from pydantic import EmailStr, field_validator
+from pydantic import EmailStr, field_validator, model_validator
 import re
 from sqlalchemy import Column, Enum as SAEnum
 
 class TipoCliente(str, Enum):
     mensalista = "Mensalista"
     horista = "Horista"
+
+class TipoPessoa(str, Enum):
+    FISICA = "Fisica"
+    JURIDICA = "Juridica"
 
 
 class DisponibilidadeVaga(str, Enum):
@@ -72,25 +76,141 @@ class TokenResposta(SQLModel):
     token_type: str = "bearer"
     expires_in: int
 
+class VeiculoBase(SQLModel):
+    modelo: str = Field(min_length=1, max_length=100)
+    placa: str = Field(min_length=7, max_length=7, index=True)
+    cor: str = Field(min_length=1, max_length=50)
+    marca: str = Field(min_length=1, max_length=100)
+    id_cliente: int
+
+    @field_validator("placa")
+    @classmethod
+    def validar_placa(cls, value: str) -> str:
+        placa = re.sub(r"[^A-Za-z0-9]", "", value).upper()
+        if len(placa) != 7:
+            raise ValueError("A placa deve conter 7 caracteres alfanuméricos.")
+        return placa
+
+def validar_cpf_valido(cpf: str) -> str:
+    cpf = re.sub(r"\D", "", cpf)
+
+    if len(cpf) != 11 or cpf == cpf[0] * 11:
+        raise ValueError("CPF inválido.")
+
+    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
+    resto = (soma * 10) % 11
+    digito1 = 0 if resto == 10 else resto
+
+    if digito1 != int(cpf[9]):
+        raise ValueError("CPF inválido.")
+
+    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
+    resto = (soma * 10) % 11
+    digito2 = 0 if resto == 10 else resto
+
+    if digito2 != int(cpf[10]):
+        raise ValueError("CPF inválido.")
+
+    return cpf
+
+
+def validar_cnpj_valido(cnpj: str) -> str:
+    cnpj = re.sub(r"\D", "", cnpj)
+
+    if len(cnpj) != 14 or cnpj == cnpj[0] * 14:
+        raise ValueError("CNPJ inválido.")
+
+    def calcular_digito(base: str, pesos: list[int]) -> int:
+        soma = sum(int(numero) * peso for numero, peso in zip(base, pesos))
+        resto = soma % 11
+        return 0 if resto < 2 else 11 - resto
+
+    primeiro = calcular_digito(
+        cnpj[:12],
+        [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
+    )
+
+    segundo = calcular_digito(
+        cnpj[:12] + str(primeiro),
+        [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2],
+    )
+
+    if cnpj[-2:] != f"{primeiro}{segundo}":
+        raise ValueError("CNPJ inválido.")
+
+    return cnpj
+
+
+def validar_documento(tipo_pessoa: TipoPessoa, documento: str) -> str:
+    if tipo_pessoa == TipoPessoa.FISICA:
+        return validar_cpf_valido(documento)
+
+    if tipo_pessoa == TipoPessoa.JURIDICA:
+        return validar_cnpj_valido(documento)
+
+    raise ValueError("Tipo de pessoa inválido.")
+
 
 class ClienteBase(SQLModel):
-    cpf: str = Field(min_length=11, max_length=11, index=True, unique=True)
+    tipo_pessoa: TipoPessoa
+    documento: str = Field(min_length=11, max_length=14, index=True, unique=True)
+
     nome_completo: str = Field(min_length=2, max_length=150)
     email: EmailStr = Field(max_length=150, unique=True)
     telefone: str = Field(min_length=8, max_length=20)
     tipo_cliente: TipoCliente = TipoCliente.horista
 
-    @field_validator("cpf")
+    cep: str = Field(min_length=8, max_length=9)
+    rua: str = Field(min_length=2, max_length=150)
+    bairro: str = Field(min_length=2, max_length=100)
+    estado: str = Field(min_length=2, max_length=2)
+    numero_casa: str = Field(min_length=1, max_length=20)
+    numero_apartamento: Optional[str] = Field(default=None, max_length=20)
+    complemento: Optional[str] = Field(default=None, max_length=100)
+
+    @field_validator("documento")
     @classmethod
-    def validar_cpf(cls, value: str) -> str:
+    def limpar_documento(cls, value: str) -> str:
+        return re.sub(r"\D", "", value)
+
+    @field_validator("cep")
+    @classmethod
+    def validar_cep(cls, value: str) -> str:
         digits = re.sub(r"\D", "", value)
-        if len(digits) != 11:
-            raise ValueError("O CPF deve conter 11 números.")
+
+        if len(digits) != 8:
+            raise ValueError("O CEP deve conter 8 números.")
+
         return digits
+
+    @field_validator("estado")
+    @classmethod
+    def validar_estado(cls, value: str) -> str:
+        return value.strip().upper()
+
+    @model_validator(mode="after")
+    def validar_tipo_documento(self):
+        validar_documento(
+            self.tipo_pessoa,
+            self.documento
+        )
+        return self
 
 
 class Cliente(ClienteBase, table=True):
     __tablename__ = "clientes"
+
+    tipo_pessoa: TipoPessoa = Field(
+        sa_column=Column(
+            SAEnum(
+                TipoPessoa,
+                values_callable=lambda enum_cls: [
+                    item.value for item in enum_cls
+                ],
+            ),
+            nullable=False,
+        )
+    )
 
     tipo_cliente: TipoCliente = Field(
         default=TipoCliente.horista,
@@ -108,47 +228,73 @@ class Cliente(ClienteBase, table=True):
     id_cliente: Optional[int] = Field(default=None, primary_key=True)
 
 
-
 class ClienteCriar(ClienteBase):
     pass
 
 
 class ClienteAtualizar(SQLModel):
-    cpf: Optional[str] = Field(default=None, min_length=11, max_length=11)
+    tipo_pessoa: Optional[TipoPessoa] = None
+    documento: Optional[str] = Field(default=None, min_length=11, max_length=14)
+
     nome_completo: Optional[str] = Field(default=None, min_length=2, max_length=150)
     email: Optional[EmailStr] = None
     telefone: Optional[str] = Field(default=None, min_length=8, max_length=20)
     tipo_cliente: Optional[TipoCliente] = None
 
-    @field_validator("cpf")
+    cep: Optional[str] = Field(default=None, min_length=8, max_length=9)
+    rua: Optional[str] = Field(default=None, min_length=2, max_length=150)
+    bairro: Optional[str] = Field(default=None, min_length=2, max_length=100)
+    estado: Optional[str] = Field(default=None, min_length=2, max_length=2)
+    numero_casa: Optional[str] = Field(default=None, min_length=1, max_length=20)
+    numero_apartamento: Optional[str] = Field(default=None, max_length=20)
+    complemento: Optional[str] = Field(default=None, max_length=100)
+
+    @field_validator("documento")
     @classmethod
-    def validar_cpf(cls, value: Optional[str]) -> Optional[str]:
+    def limpar_documento(cls, value: Optional[str]) -> Optional[str]:
         if value is None:
-            return value
+            return None
+        return re.sub(r"\D", "", value)
+
+    @field_validator("cep")
+    @classmethod
+    def validar_cep(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+
         digits = re.sub(r"\D", "", value)
-        if len(digits) != 11:
-            raise ValueError("O CPF deve conter 11 números.")
+
+        if len(digits) != 8:
+            raise ValueError("O CEP deve conter 8 números.")
+
         return digits
 
-
-class ClientePublico(ClienteBase):
-    id_cliente: int
-
-
-class VeiculoBase(SQLModel):
-    modelo: str = Field(min_length=1, max_length=100)
-    placa: str = Field(min_length=7, max_length=7, index=True)
-    cor: str = Field(min_length=1, max_length=50)
-    marca: str = Field(min_length=1, max_length=100)
-    id_cliente: int
-
-    @field_validator("placa")
+    @field_validator("estado")
     @classmethod
-    def validar_placa(cls, value: str) -> str:
-        placa = re.sub(r"[^A-Za-z0-9]", "", value).upper()
-        if len(placa) != 7:
-            raise ValueError("A placa deve conter 7 caracteres alfanuméricos.")
-        return placa
+    def validar_estado(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        return value.strip().upper()
+
+
+class ClientePublico(SQLModel):
+    id_cliente: int
+    tipo_pessoa: TipoPessoa
+    documento: str
+    nome_completo: str
+    email: EmailStr
+    telefone: str
+    tipo_cliente: TipoCliente
+
+    # Sem restrições de tamanho para permitir a leitura
+    # de registros antigos ainda sem endereço.
+    cep: str = ""
+    rua: str = ""
+    bairro: str = ""
+    estado: str = ""
+    numero_casa: str = ""
+    numero_apartamento: Optional[str] = None
+    complemento: Optional[str] = None
 
 
 class Veiculo(VeiculoBase, table=True):

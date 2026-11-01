@@ -73,22 +73,6 @@ def pagina_frontend(nome: str):
         raise HTTPException(404, "Página não encontrada.")
     return FileResponse(FRONTEND_DIR / nome / f"{nome}.html")
 
-# @app.get("/pagina/{nome}", include_in_schema=False)
-# def pagina_frontend(nome: str):
-#     permitidas = {
-#         "inicial", "clientes", "veiculos",
-#         "usuarios", "vagas", "precos", "movimentacoes"
-#     }
-
-#     print("Página solicitada:", nome)
-#     print("Caminho:", FRONTEND_DIR / nome / f"{nome}.html")
-#     print("Arquivo existe:", (FRONTEND_DIR / nome / f"{nome}.html").exists())
-
-#     if nome not in permitidas:
-#         raise HTTPException(404, "Página não encontrada.")
-
-#     return FileResponse(FRONTEND_DIR / nome / f"{nome}.html")
-
 @app.get("/api/health", tags=["Sistema"])
 def health():
     return {"status": "ok"}

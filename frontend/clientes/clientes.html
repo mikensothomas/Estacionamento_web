@@ -10,7 +10,11 @@
 <body data-private="true">
   <div class="app-shell">
     <header class="topbar">
-      <a class="brand" href="/pagina/inicial"><span class="brand-mark">E</span><span>Estacionamento</span></a>
+      <a class="brand" href="/pagina/inicial">
+        <span class="brand-mark">E</span>
+        <span>Estacionamento</span>
+      </a>
+
       <nav class="nav-links" id="navLinks">
         <a href="/pagina/inicial">Início</a>
         <a href="/pagina/clientes">Clientes</a>
@@ -20,18 +24,79 @@
         <a href="/pagina/precos">Preços</a>
         <a href="/pagina/movimentacoes">Movimentações</a>
       </nav>
-      <button class="button button-outline" id="logoutButton" type="button" hidden>Sair</button>
+
+      <button class="button button-outline" id="logoutButton" type="button" hidden>
+        Sair
+      </button>
     </header>
+
     <main class="main-content">
       <section class="page-heading">
-        <div><p class="eyebrow">GESTÃO DO ESTACIONAMENTO</p><h1>Clientes</h1><p class="subtitle">Gerencie os clientes e o tipo de cobrança</p></div>
+        <div>
+          <p class="eyebrow">GESTÃO DO ESTACIONAMENTO</p>
+          <h1>Clientes</h1>
+          <p class="subtitle">Gerencie os clientes e o tipo de cobrança</p>
+        </div>
       </section>
+
       <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
 
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2 id="formTitle">Novo registro</h2>
+            <p>Preencha os campos abaixo.</p>
+          </div>
+        </div>
 
-      <section class="panel"><div class="panel-heading"><div><h2 id="formTitle">Novo registro</h2><p>Preencha os campos abaixo.</p></div></div><form id="recordForm" class="record-form"></form><div class="form-actions"><button class="button button-primary" id="saveButton" type="submit" form="recordForm">Salvar registro</button><button class="button button-outline" id="cancelEdit" type="button" hidden>Cancelar edição</button></div></section><section class="panel table-panel"><div class="panel-heading"><div><h2>Registros cadastrados</h2><p id="recordCount">Carregando...</p></div><button class="button button-outline" id="refreshButton" type="button">Atualizar</button></div><div class="table-wrap"><table><thead id="tableHead"></thead><tbody id="tableBody"></tbody></table></div></section>
+        <form id="recordForm" class="record-form"></form>
+
+        <div class="form-actions">
+          <button
+            class="button button-primary"
+            id="saveButton"
+            type="submit"
+            form="recordForm"
+            disabled
+          >
+            Salvar registro
+          </button>
+
+          <button
+            class="button button-outline"
+            id="cancelEdit"
+            type="button"
+            hidden
+          >
+            Cancelar edição
+          </button>
+        </div>
+      </section>
+
+      <section class="panel table-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Registros cadastrados</h2>
+            <p id="recordCount">Carregando...</p>
+          </div>
+
+          <button class="button button-outline" id="refreshButton" type="button">
+            Atualizar
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead id="tableHead"></thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </section>
     </main>
-    <footer class="footer">Sistema de Estacionamento · FastAPI + SQLModel + MySQL</footer>
+
+    <footer class="footer">
+      Sistema de Estacionamento · FastAPI + SQLModel + MySQL
+    </footer>
   </div>
 </body>
 </html>
