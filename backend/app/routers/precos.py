@@ -9,18 +9,18 @@ router = APIRouter(prefix="/api/precos", tags=["Preços"])
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @router.get("/", response_model=list[PrecoPublico])
-def listar(session: SessionDep, usuario: UsuarioAtual):
+def listar(session: SessionDep, usuario: UsuarioAtual): # type: ignore
     return session.exec(select(Preco).order_by(Preco.id_preco.desc())).all()
 
 @router.get("/{id_preco}", response_model=PrecoPublico)
-def obter(id_preco: int, session: SessionDep, usuario: UsuarioAtual):
+def obter(id_preco: int, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Preco, id_preco)
     if not item:
         raise HTTPException(404, "Preço não encontrado.")
     return item
 
 @router.post("/", response_model=PrecoPublico, status_code=201)
-def criar(dados: PrecoCriar, session: SessionDep, usuario: UsuarioAtual):
+def criar(dados: PrecoCriar, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = Preco.model_validate(dados)
     session.add(item)
     session.commit()
@@ -28,7 +28,7 @@ def criar(dados: PrecoCriar, session: SessionDep, usuario: UsuarioAtual):
     return item
 
 @router.put("/{id_preco}", response_model=PrecoPublico)
-def atualizar(id_preco: int, dados: PrecoAtualizar, session: SessionDep, usuario: UsuarioAtual):
+def atualizar(id_preco: int, dados: PrecoAtualizar, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Preco, id_preco)
     if not item:
         raise HTTPException(404, "Preço não encontrado.")
@@ -39,7 +39,7 @@ def atualizar(id_preco: int, dados: PrecoAtualizar, session: SessionDep, usuario
     return item
 
 @router.delete("/{id_preco}", status_code=204)
-def excluir(id_preco: int, session: SessionDep, usuario: UsuarioAtual):
+def excluir(id_preco: int, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Preco, id_preco)
     if not item:
         raise HTTPException(404, "Preço não encontrado.")

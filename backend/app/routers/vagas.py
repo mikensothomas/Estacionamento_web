@@ -10,18 +10,18 @@ router = APIRouter(prefix="/api/vagas", tags=["Vagas"])
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @router.get("/", response_model=list[VagaPublico])
-def listar(session: SessionDep, usuario: UsuarioAtual):
+def listar(session: SessionDep, usuario: UsuarioAtual): # type: ignore
     return session.exec(select(Vaga).order_by(Vaga.numero_vaga)).all()
 
 @router.get("/{id_vaga}", response_model=VagaPublico)
-def obter(id_vaga: int, session: SessionDep, usuario: UsuarioAtual):
+def obter(id_vaga: int, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Vaga, id_vaga)
     if not item:
         raise HTTPException(404, "Vaga não encontrada.")
     return item
 
 @router.post("/", response_model=VagaPublico, status_code=201)
-def criar(dados: VagaCriar, session: SessionDep, usuario: UsuarioAtual):
+def criar(dados: VagaCriar, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = Vaga.model_validate(dados)
     session.add(item)
     try:
@@ -33,7 +33,7 @@ def criar(dados: VagaCriar, session: SessionDep, usuario: UsuarioAtual):
         raise HTTPException(409, "Esse número de vaga já está cadastrado.")
 
 @router.put("/{id_vaga}", response_model=VagaPublico)
-def atualizar(id_vaga: int, dados: VagaAtualizar, session: SessionDep, usuario: UsuarioAtual):
+def atualizar(id_vaga: int, dados: VagaAtualizar, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Vaga, id_vaga)
     if not item:
         raise HTTPException(404, "Vaga não encontrada.")
@@ -48,7 +48,7 @@ def atualizar(id_vaga: int, dados: VagaAtualizar, session: SessionDep, usuario: 
         raise HTTPException(409, "Esse número de vaga já está cadastrado.")
 
 @router.delete("/{id_vaga}", status_code=204)
-def excluir(id_vaga: int, session: SessionDep, usuario: UsuarioAtual):
+def excluir(id_vaga: int, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Vaga, id_vaga)
     if not item:
         raise HTTPException(404, "Vaga não encontrada.")

@@ -36,7 +36,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 )
 def registrar_entrada(
     dados: MovimentacaoEntrada,
-    session: SessionDep,
+    session: SessionDep,  # type: ignore
     usuario: UsuarioAtual,
 ):
     try:
@@ -113,7 +113,7 @@ def registrar_entrada(
 )
 def registrar_saida(
     id_movimentacao: int,
-    session: SessionDep,
+    session: SessionDep,  # type: ignore
     usuario: UsuarioAtual,
 ):
     try:
@@ -236,7 +236,7 @@ def registrar_saida(
     response_model=list[MovimentacaoPublica],
 )
 def listar_abertas(
-    session: SessionDep,
+    session: SessionDep,  # type: ignore
     usuario: UsuarioAtual,
 ):
     return session.exec(
@@ -253,7 +253,7 @@ def listar_abertas(
     response_model=list[MovimentacaoPublica],
 )
 def listar_historico(
-    session: SessionDep,
+    session: SessionDep,  # type: ignore
     usuario: UsuarioAtual,
 ):
     return session.exec(

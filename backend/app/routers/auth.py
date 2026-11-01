@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api/auth", tags=["Autenticação"])
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @router.post("/login", response_model=TokenResposta)
-def login(dados: LoginEntrada, session: SessionDep):
+def login(dados: LoginEntrada, session: SessionDep): # type: ignore
     usuario = session.exec(select(Usuario).where(Usuario.email == dados.email)).first()
     if not usuario or not verificar_senha(dados.senha, usuario.senha_hash):
         raise HTTPException(

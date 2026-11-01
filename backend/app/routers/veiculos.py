@@ -10,18 +10,18 @@ router = APIRouter(prefix="/api/veiculos", tags=["Veículos"])
 SessionDep = Annotated[Session, Depends(get_session)]
 
 @router.get("/", response_model=list[VeiculoPublico])
-def listar(session: SessionDep, usuario: UsuarioAtual):
+def listar(session: SessionDep, usuario: UsuarioAtual): # type: ignore
     return session.exec(select(Veiculo).order_by(Veiculo.id_veiculo.desc())).all()
 
 @router.get("/{id_veiculo}", response_model=VeiculoPublico)
-def obter(id_veiculo: int, session: SessionDep, usuario: UsuarioAtual):
+def obter(id_veiculo: int, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     item = session.get(Veiculo, id_veiculo)
     if not item:
         raise HTTPException(404, "Veículo não encontrado.")
     return item
 
 @router.post("/", response_model=VeiculoPublico, status_code=201)
-def criar(dados: VeiculoCriar, session: SessionDep, usuario: UsuarioAtual):
+def criar(dados: VeiculoCriar, session: SessionDep, usuario: UsuarioAtual): # type: ignore
     if not session.get(Cliente, dados.id_cliente):
         raise HTTPException(400, "O cliente informado não existe.")
     item = Veiculo.model_validate(dados)
@@ -35,7 +35,7 @@ def criar(dados: VeiculoCriar, session: SessionDep, usuario: UsuarioAtual):
         raise HTTPException(409, "A placa já está cadastrada.")
 
 @router.put("/{id_veiculo}", response_model=VeiculoPublico)
-def atualizar(id_veiculo: int, dados: VeiculoAtualizar, session: SessionDep, usuario: UsuarioAtual):
+def atualizar(id_veiculo: int, dados: VeiculoAtualizar, session: SessionDep, usuario: UsuarioAtual):  # type: ignore
     item = session.get(Veiculo, id_veiculo)
     if not item:
         raise HTTPException(404, "Veículo não encontrado.")
@@ -53,7 +53,7 @@ def atualizar(id_veiculo: int, dados: VeiculoAtualizar, session: SessionDep, usu
         raise HTTPException(409, "A placa já está cadastrada.")
 
 @router.delete("/{id_veiculo}", status_code=204)
-def excluir(id_veiculo: int, session: SessionDep, usuario: UsuarioAtual):
+def excluir(id_veiculo: int, session: SessionDep, usuario: UsuarioAtual):  # type: ignore
     item = session.get(Veiculo, id_veiculo)
     if not item:
         raise HTTPException(404, "Veículo não encontrado.")
