@@ -24,15 +24,24 @@ CREATE TABLE IF NOT EXISTS usuarios (
 -- =========================================
 CREATE TABLE IF NOT EXISTS clientes (
     id_cliente INT AUTO_INCREMENT PRIMARY KEY,
-    cpf VARCHAR(11) NOT NULL UNIQUE,
+    tipo_pessoa ENUM('Fisica', 'Juridica') NOT NULL,
+    documento VARCHAR(14) NOT NULL UNIQUE,
     nome_completo VARCHAR(150) NOT NULL,
     email VARCHAR(150) NOT NULL UNIQUE,
     telefone VARCHAR(20) NOT NULL,
+    whatsapp VARCHAR(20) NULL,
 
     tipo_cliente ENUM('Mensalista', 'Horista')
         NOT NULL DEFAULT 'Horista',
 
-    INDEX idx_clientes_cpf (cpf)
+    cep VARCHAR(9) NOT NULL,
+    rua VARCHAR(150) NOT NULL,
+    bairro VARCHAR(100) NOT NULL,
+    estado VARCHAR(2) NOT NULL,
+    numero_casa VARCHAR(20) NULL,
+    complemento VARCHAR(100) NULL,
+
+    INDEX idx_clientes_documento (documento)
 ) ENGINE=InnoDB;
 
 
@@ -116,16 +125,3 @@ CREATE TABLE IF NOT EXISTS movimentacoes (
     INDEX idx_movimentacoes_status (status),
     INDEX idx_movimentacoes_entrada (data_hora_entrada)
 ) ENGINE=InnoDB;
-
-ALTER TABLE clientes
-ADD COLUMN cep VARCHAR(9) NOT NULL DEFAULT '',
-ADD COLUMN rua VARCHAR(150) NOT NULL DEFAULT '',
-ADD COLUMN bairro VARCHAR(100) NOT NULL DEFAULT '',
-ADD COLUMN estado VARCHAR(2) NOT NULL DEFAULT '',
-ADD COLUMN numero_casa VARCHAR(20) NOT NULL DEFAULT '',
-ADD COLUMN numero_apartamento VARCHAR(20) NULL,
-ADD COLUMN complemento VARCHAR(100) NULL;
-
-ALTER TABLE clientes
-ADD COLUMN tipo_pessoa ENUM('Fisica', 'Juridica') NOT NULL DEFAULT 'Fisica',
-ADD COLUMN documento VARCHAR(14) NULL;

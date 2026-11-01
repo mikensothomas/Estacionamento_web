@@ -17,12 +17,12 @@ const campos = [
   ["nome_completo", "Nome completo", "text"],
   ["email", "E-mail", "email"],
   ["telefone", "Telefone", "tel"],
+  ["whatsapp", "WhatsApp", "tel"],
   ["cep", "CEP", "text"],
   ["rua", "Rua", "text"],
   ["bairro", "Bairro", "text"],
   ["estado", "Estado (UF)", "text"],
   ["numero_casa", "Número da casa", "text"],
-  ["numero_apartamento", "Número do apartamento (opcional)", "text"],
   ["complemento", "Complemento (opcional)", "text"],
   ["tipo_cliente", "Tipo de cliente", "select"]
 ];
@@ -33,6 +33,7 @@ const obrigatorios = [
   "nome_completo",
   "email",
   "telefone",
+  "whatsapp",
   "cep",
   "rua",
   "bairro",
@@ -48,12 +49,12 @@ const colunas = [
   ["nome_completo", "Nome / Razão social"],
   ["email", "E-mail"],
   ["telefone", "Telefone"],
+  ["whatsapp", "whatsapp"],
   ["cep", "CEP"],
   ["rua", "Rua"],
   ["bairro", "Bairro"],
   ["estado", "Estado"],
   ["numero_casa", "Número"],
-  ["numero_apartamento", "Apartamento"],
   ["tipo_cliente", "Cobrança"]
 ];
 
@@ -301,6 +302,12 @@ function criarCampo(nome, rotulo, tipo) {
       input.placeholder = "(99) 99999-9999";
     }
 
+    if (nome === "whatsapp") {
+      input.inputMode = "numeric";
+      input.maxLength = 15;
+      input.placeholder = "(99) 99999-9999";
+    }
+
     if (nome === "cep") {
       input.inputMode = "numeric";
       input.maxLength = 9;
@@ -311,10 +318,6 @@ function criarCampo(nome, rotulo, tipo) {
       input.maxLength = 2;
     }
 
-    if (nome === "numero_apartamento") {
-      input.placeholder = "Opcional";
-    }
-
     if (nome === "complemento") {
       input.placeholder = "Opcional";
     }
@@ -322,10 +325,6 @@ function criarCampo(nome, rotulo, tipo) {
 
   input.id = nome;
   input.name = nome;
-
-  if (!["numero_apartamento", "complemento"].includes(nome)) {
-    input.required = true;
-  }
 
   wrap.append(label, input);
   form.appendChild(wrap);
@@ -435,7 +434,6 @@ function limparEndereco() {
     "bairro",
     "estado",
     "numero_casa",
-    "numero_apartamento",
     "complemento",
     "tipo_cliente"
   ].forEach((nome) => {
@@ -457,6 +455,7 @@ function configurarFormulario() {
   const nome = document.getElementById("nome_completo");
   const email = document.getElementById("email");
   const telefone = document.getElementById("telefone");
+  const whatsapp = document.getElementById("whatsapp");
   const cep = document.getElementById("cep");
 
   tipoPessoa.addEventListener("change", () => {
@@ -516,6 +515,22 @@ function configurarFormulario() {
     telefone.value = mascararTelefone(telefone.value);
 
     const valido = somenteNumeros(telefone.value).length >= 10;
+
+    whatsapp.disabled = !valido;
+
+    if (!valido) {
+      limparCamposPosteriores("cep");
+      consultaCEPId++;
+      consultandoCEP = false;
+    }
+
+    atualizarBotao();
+  });
+
+  whatsapp.addEventListener("input", () => {
+    whatsapp.value = mascararTelefone(whatsapp.value);
+
+    const valido = somenteNumeros(whatsapp.value).length >= 10;
 
     cep.disabled = !valido;
 
@@ -592,7 +607,6 @@ async function consultarCEP() {
     }
 
     liberarCampo("numero_casa");
-    liberarCampo("numero_apartamento");
     liberarCampo("complemento");
     liberarCampo("tipo_cliente");
 
@@ -608,7 +622,6 @@ async function consultarCEP() {
     });
 
     liberarCampo("numero_casa");
-    liberarCampo("numero_apartamento");
     liberarCampo("complemento");
     liberarCampo("tipo_cliente");
 
@@ -739,12 +752,12 @@ function prepararEdicao(item) {
     nome_completo: item.nome_completo,
     email: item.email,
     telefone: mascararTelefone(item.telefone),
+    whatsapp: mascararTelefone(item.whatsapp),
     cep: mascararCEP(item.cep),
     rua: item.rua,
     bairro: item.bairro,
     estado: item.estado,
     numero_casa: item.numero_casa,
-    numero_apartamento: item.numero_apartamento,
     complemento: item.complemento,
     tipo_cliente: item.tipo_cliente
   };
@@ -817,7 +830,7 @@ form.addEventListener("submit", async (event) => {
     const input = document.getElementById(nome);
     let valor = input.value.trim();
 
-    if (["documento", "telefone", "cep"].includes(nome)) {
+    if (["documento", "telefone", "whatsapp", "cep"].includes(nome)) {
       valor = somenteNumeros(valor);
     }
 

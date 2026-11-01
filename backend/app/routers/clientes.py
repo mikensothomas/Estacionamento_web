@@ -61,12 +61,13 @@ def criar(
         session.refresh(item)
         return item
 
-    except IntegrityError:
+    except IntegrityError as erro:
         session.rollback()
+        print("ERRO ORIGINAL DO MYSQL:", erro.orig)
 
         raise HTTPException(
             status_code=409,
-            detail="CPF ou e-mail já cadastrado.",
+            detail="Conflito com uma restrição do banco de dados."
         )
 
 

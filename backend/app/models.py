@@ -158,6 +158,7 @@ class ClienteBase(SQLModel):
     nome_completo: str = Field(min_length=2, max_length=150)
     email: EmailStr = Field(max_length=150, unique=True)
     telefone: str = Field(min_length=8, max_length=20)
+    whatsapp: str = Field(min_length=8, max_length=20)
     tipo_cliente: TipoCliente = TipoCliente.horista
 
     cep: str = Field(min_length=8, max_length=9)
@@ -165,7 +166,6 @@ class ClienteBase(SQLModel):
     bairro: str = Field(min_length=2, max_length=100)
     estado: str = Field(min_length=2, max_length=2)
     numero_casa: str = Field(min_length=1, max_length=20)
-    numero_apartamento: Optional[str] = Field(default=None, max_length=20)
     complemento: Optional[str] = Field(default=None, max_length=100)
 
     @field_validator("documento")
@@ -239,6 +239,7 @@ class ClienteAtualizar(SQLModel):
     nome_completo: Optional[str] = Field(default=None, min_length=2, max_length=150)
     email: Optional[EmailStr] = None
     telefone: Optional[str] = Field(default=None, min_length=8, max_length=20)
+    whatsapp: Optional[str] = Field(default=None, min_length=8, max_length=20)
     tipo_cliente: Optional[TipoCliente] = None
 
     cep: Optional[str] = Field(default=None, min_length=8, max_length=9)
@@ -246,7 +247,6 @@ class ClienteAtualizar(SQLModel):
     bairro: Optional[str] = Field(default=None, min_length=2, max_length=100)
     estado: Optional[str] = Field(default=None, min_length=2, max_length=2)
     numero_casa: Optional[str] = Field(default=None, min_length=1, max_length=20)
-    numero_apartamento: Optional[str] = Field(default=None, max_length=20)
     complemento: Optional[str] = Field(default=None, max_length=100)
 
     @field_validator("documento")
@@ -284,16 +284,14 @@ class ClientePublico(SQLModel):
     nome_completo: str
     email: EmailStr
     telefone: str
+    whatsapp: str
     tipo_cliente: TipoCliente
 
-    # Sem restrições de tamanho para permitir a leitura
-    # de registros antigos ainda sem endereço.
     cep: str = ""
     rua: str = ""
     bairro: str = ""
     estado: str = ""
     numero_casa: str = ""
-    numero_apartamento: Optional[str] = None
     complemento: Optional[str] = None
 
 
